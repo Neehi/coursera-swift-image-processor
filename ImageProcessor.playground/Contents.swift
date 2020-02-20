@@ -8,22 +8,35 @@ let image = UIImage(named: "sample")!
 
 var rgbaImage = RGBAImage(image: image)!
 
-func greyScaleFilter(_ pixel: Pixel) -> Pixel {
-    // Calculate grey scale based on luminance
-    let grey = UInt8(0.3 * Double(pixel.red) + 0.59 * Double(pixel.green) + 0.11 * Double(pixel.blue))
-    var newPixel = Pixel()
-    newPixel.red = grey
-    newPixel.green = grey
-    newPixel.blue = grey
-    newPixel.alpha = pixel.alpha
-    return newPixel
-}
+// Base filter class
+public class Filter {
+    public func applyToImage(_ image: inout RGBAImage) {
+        for i in 0..<(image.width * image.height) {
+            applyToPixel(&image.pixels[i])
+        }
+    }
 
-func processImage(_ rgbaImage: inout RGBAImage, filter: (_ pixel: Pixel) -> Pixel) {
-    for i in 0..<(rgbaImage.width * rgbaImage.height) {
-        rgbaImage.pixels[i] = filter(rgbaImage.pixels[i])
+    func applyToPixel(_ pixel: inout Pixel) {
+        // ...
     }
 }
+
+// Grey scale filter
+public class GreyScaleFilter: Filter {
+    // Calculate grey scale based on luminance
+    override func applyToPixel(_ pixel: inout Pixel) {
+        let grey = UInt8(0.3 * Double(pixel.red) + 0.59 * Double(pixel.green) + 0.11 * Double(pixel.blue))
+        pixel.red = grey
+        pixel.green = grey
+        pixel.blue = grey
+    }
+}
+
+func processImage(_ rgbaImage: inout RGBAImage, filter: Filter) {
+    filter.applyToImage(&rgbaImage)
+}
+
+let greyScaleFilter = GreyScaleFilter()
 
 processImage(&rgbaImage, filter: greyScaleFilter)
 
