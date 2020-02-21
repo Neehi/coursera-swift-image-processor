@@ -17,6 +17,24 @@ public class Filter {
     }
 }
 
+// Brightness filter
+public class BrightnessFilter: Filter {
+    var intensity: Double  // 0 <- darker <- 1 -> brighter
+
+    public init(_ intensity: Double = 1.0) {
+        self.intensity = intensity
+    }
+
+    override func applyToPixel(_ pixel: inout Pixel) {
+        if intensity == 1 {
+            return
+        }
+        pixel.red = UInt8(max(0, min(255, Double(pixel.red) * intensity)))
+        pixel.green = UInt8(max(0, min(255, Double(pixel.green) * intensity)))
+        pixel.blue = UInt8(max(0, min(255, Double(pixel.blue) * intensity)))
+    }
+}
+
 // Grey scale filter
 public class GreyScaleFilter: Filter {
     // Calculate grey scale based on luminance
@@ -32,7 +50,10 @@ public class GreyScaleFilter: Filter {
 public class ImageProcessor {
     var filters: [String: Filter] = [
         // Pre-determined filters
-        "Grey Scale": GreyScaleFilter()
+        "Grey Scale": GreyScaleFilter(),
+        "50% Darker": BrightnessFilter(0.5),
+        "50% Brighter": BrightnessFilter(1.5),
+        "2x Contrast": ContrastFilter(2.0)
     ]
     
     public func addFilter(_ name: String, filter: Filter) {
@@ -61,4 +82,4 @@ public class ImageProcessor {
 
 var imageProcessor = ImageProcessor()
 
-let result = imageProcessor.applyFilters(image, filters: ["Grey Scale"])
+let result = imageProcessor.applyFilters(image, filters: ["Grey Scale", "50% Darker"])
