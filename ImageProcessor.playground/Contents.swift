@@ -35,6 +35,44 @@ public class BrightnessFilter: Filter {
     }
 }
 
+// Contrast filter
+public class ContrastFilter: Filter {
+    private var factor: Double
+    private var average: UInt8 = 0
+    
+    public init(_ factor: Double = 1.0) {
+        self.factor = factor
+    }
+
+    override public func applyToImage(_ image: inout RGBAImage) {
+        // Average brightness is calculated as the average grey scale value
+        var total = 0
+        for i in 0..<(image.width * image.height) {
+            let pixel = image.pixels[i]
+            total += Int(Double(pixel.red) * 0.3 + Double(pixel.green) * 0.59 + Double(pixel.blue) * 0.11)
+        }
+        average = UInt8(total / (image.width * image.height))
+        // Process the image
+        super.applyToImage( &image)
+    }
+    
+    override func applyToPixel(_ pixel: inout Pixel) {
+        if factor == 1 {
+            return
+        }
+        pixel.red = calculateComponentValue(pixel.red)
+        pixel.green = calculateComponentValue(pixel.green)
+        pixel.blue = calculateComponentValue(pixel.blue)
+    }
+    
+    private func calculateComponentValue(_ value: UInt8) -> UInt8 {
+        // The component value is calculated as the average brightness +/-
+        // the coefficient multiplied by the difference between the component
+        // value and the average brightness:
+        return UInt8(max(0, min(255, Double(average) + factor * (Double(value) - Double(average)))))
+    }
+}
+
 // Grey scale filter
 public class GreyScaleFilter: Filter {
     // Calculate grey scale based on luminance
@@ -82,4 +120,5 @@ public class ImageProcessor {
 
 var imageProcessor = ImageProcessor()
 
-let result = imageProcessor.applyFilters(image, filters: ["Grey Scale", "50% Darker"])
+//let result = imageProcessor.applyFilters(image, filters: ["Grey Scale", "50% Darker"])
+let result = imageProcessor.applyFilters(image, filters: ["2x Contrast", "50% Brighter"])
