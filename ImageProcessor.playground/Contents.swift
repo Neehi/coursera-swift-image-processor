@@ -84,12 +84,32 @@ public class NegativeFilter: Filter {
 
 // Grey scale filter
 public class GreyScaleFilter: Filter {
-    // Calculate grey scale based on luminance
     override func applyToPixel(_ pixel: inout Pixel) {
-        let grey = UInt8(0.3 * Double(pixel.red) + 0.59 * Double(pixel.green) + 0.11 * Double(pixel.blue))
+        let grey = calculateGreyScale(pixel)
         pixel.red = grey
         pixel.green = grey
         pixel.blue = grey
+    }
+
+    func calculateGreyScale(_ pixel: Pixel) -> UInt8 {
+        // Calculate grey scale based on luminance
+        return UInt8(0.3 * Double(pixel.red) + 0.59 * Double(pixel.green) + 0.11 * Double(pixel.blue))
+    }
+}
+
+// Black and white filter
+public class BlackAndWhiteFilter: GreyScaleFilter {
+    var mid: UInt8
+
+    public init(_ factor: Double = 1.0) {
+        // Adjust the mid-point by the given factor
+        mid = UInt8(255 / 2 / factor)
+    }
+
+    override func calculateGreyScale(_ pixel: Pixel) -> UInt8 {
+        // Calculate black or white based on whether the grey scale value of
+        // the pixel falls above or below the mid-point.
+        return super.calculateGreyScale(pixel) > mid ? 255 : 0
     }
 }
 
@@ -101,7 +121,8 @@ public class ImageProcessor {
         "50% Darker": BrightnessFilter(0.5),
         "50% Brighter": BrightnessFilter(1.5),
         "2x Contrast": ContrastFilter(2.0),
-        "Negative": NegativeFilter()
+        "Negative": NegativeFilter(),
+        "BlackAndWhite": BlackAndWhiteFilter()
     ]
     
     public func addFilter(_ name: String, filter: Filter) {
@@ -132,4 +153,5 @@ var imageProcessor = ImageProcessor()
 
 //let result = imageProcessor.applyFilters(image, filters: ["Grey Scale", "50% Darker"])
 //let result = imageProcessor.applyFilters(image, filters: ["2x Contrast", "50% Brighter"])
-let result = imageProcessor.applyFilters(image, filters: ["Negative"])
+//let result = imageProcessor.applyFilters(image, filters: ["Negative"])
+let result = imageProcessor.applyFilters(image, filters: ["BlackAndWhite"])
