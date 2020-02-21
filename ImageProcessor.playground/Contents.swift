@@ -4,10 +4,6 @@ import UIKit
 
 let image = UIImage(named: "sample")!
 
-// Process the image!
-
-var rgbaImage = RGBAImage(image: image)!
-
 // Base filter class
 public class Filter {
     public func applyToImage(_ image: inout RGBAImage) {
@@ -32,12 +28,26 @@ public class GreyScaleFilter: Filter {
     }
 }
 
-func processImage(_ rgbaImage: inout RGBAImage, filter: Filter) {
-    filter.applyToImage(&rgbaImage)
+// Image processor
+public class ImageProcessor {
+    var filters = [String: Filter]()
+    
+    public func addFilter(_ name: String, filter: Filter) {
+        filters.updateValue(filter, forKey: name)
+    }
+
+    public func applyFilters(_ image: UIImage) -> UIImage! {
+        var rgbaImage = RGBAImage(image: image)!
+        for (_, filter) in filters {
+            filter.applyToImage(&rgbaImage)
+        }
+        return rgbaImage.toUIImage()
+    }
 }
 
-let greyScaleFilter = GreyScaleFilter()
+// Process the image!
 
-processImage(&rgbaImage, filter: greyScaleFilter)
+var imageProcessor = ImageProcessor()
+imageProcessor.addFilter("Grey Scale", filter: GreyScaleFilter())
 
-let result = rgbaImage.toUIImage()
+let result = imageProcessor.applyFilters(image)
