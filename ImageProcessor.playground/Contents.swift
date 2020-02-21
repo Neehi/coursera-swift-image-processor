@@ -73,6 +73,15 @@ public class ContrastFilter: Filter {
     }
 }
 
+// Negative filter
+public class NegativeFilter: Filter {
+    override func applyToPixel(_ pixel: inout Pixel) {
+        pixel.red = 255 - pixel.red
+        pixel.green = 255 - pixel.green
+        pixel.blue = 255 - pixel.blue
+    }
+}
+
 // Grey scale filter
 public class GreyScaleFilter: Filter {
     // Calculate grey scale based on luminance
@@ -91,7 +100,8 @@ public class ImageProcessor {
         "Grey Scale": GreyScaleFilter(),
         "50% Darker": BrightnessFilter(0.5),
         "50% Brighter": BrightnessFilter(1.5),
-        "2x Contrast": ContrastFilter(2.0)
+        "2x Contrast": ContrastFilter(2.0),
+        "Negative": NegativeFilter()
     ]
     
     public func addFilter(_ name: String, filter: Filter) {
@@ -121,4 +131,5 @@ public class ImageProcessor {
 var imageProcessor = ImageProcessor()
 
 //let result = imageProcessor.applyFilters(image, filters: ["Grey Scale", "50% Darker"])
-let result = imageProcessor.applyFilters(image, filters: ["2x Contrast", "50% Brighter"])
+//let result = imageProcessor.applyFilters(image, filters: ["2x Contrast", "50% Brighter"])
+let result = imageProcessor.applyFilters(image, filters: ["Negative"])
