@@ -30,17 +30,29 @@ public class GreyScaleFilter: Filter {
 
 // Image processor
 public class ImageProcessor {
-    var filters = [String: Filter]()
+    var filters: [String: Filter] = [
+        // Pre-determined filters
+        "Grey Scale": GreyScaleFilter()
+    ]
     
     public func addFilter(_ name: String, filter: Filter) {
         filters.updateValue(filter, forKey: name)
     }
 
-    public func applyFilters(_ image: UIImage) -> UIImage! {
+    public func applyFilters(_ image: UIImage, filters: [String]) -> UIImage! {
         var rgbaImage = RGBAImage(image: image)!
-        for (_, filter) in filters {
-            filter.applyToImage(&rgbaImage)
+        var count = 0
+        print("Processing image (\(rgbaImage.width)x\(rgbaImage.height))")
+        for name in filters {
+            if let filter = self.filters[name] {
+                print("Applying filter: \"\(name)\"")
+                filter.applyToImage(&rgbaImage)
+                count += 1
+            } else {
+                print("Filter \"\(name)\" not recognized")
+            }
         }
+        print("\(count) filter(s) applied")
         return rgbaImage.toUIImage()
     }
 }
@@ -48,6 +60,5 @@ public class ImageProcessor {
 // Process the image!
 
 var imageProcessor = ImageProcessor()
-imageProcessor.addFilter("Grey Scale", filter: GreyScaleFilter())
 
-let result = imageProcessor.applyFilters(image)
+let result = imageProcessor.applyFilters(image, filters: ["Grey Scale"])
