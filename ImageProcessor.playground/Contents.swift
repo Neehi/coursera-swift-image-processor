@@ -113,6 +113,19 @@ public class BlackAndWhiteFilter: GreyScaleFilter {
     }
 }
 
+// Opacity filter
+public class OpacityFilter: Filter {
+    var opacity: Double  // transparent < > opaque
+
+    public init(_ opacity: Double = 1.0) {
+        self.opacity = max(0, min(1, opacity))
+    }
+
+    override func applyToPixel(_ pixel: inout Pixel) {
+        pixel.alpha = UInt8(255 * opacity)
+    }
+}
+
 // Image processor
 public class ImageProcessor {
     var filters: [String: Filter] = [
@@ -122,7 +135,9 @@ public class ImageProcessor {
         "50% Brighter": BrightnessFilter(1.5),
         "2x Contrast": ContrastFilter(2.0),
         "Negative": NegativeFilter(),
-        "BlackAndWhite": BlackAndWhiteFilter()
+        "BlackAndWhite": BlackAndWhiteFilter(),
+        "100% Opactity": OpacityFilter(1.0),
+        "50% Opacity": OpacityFilter(0.5)
     ]
     
     public func addFilter(_ name: String, filter: Filter) {
@@ -154,4 +169,5 @@ var imageProcessor = ImageProcessor()
 //let result = imageProcessor.applyFilters(image, filters: ["Grey Scale", "50% Darker"])
 //let result = imageProcessor.applyFilters(image, filters: ["2x Contrast", "50% Brighter"])
 //let result = imageProcessor.applyFilters(image, filters: ["Negative"])
-let result = imageProcessor.applyFilters(image, filters: ["BlackAndWhite"])
+//let result = imageProcessor.applyFilters(image, filters: ["BlackAndWhite"])
+let result = imageProcessor.applyFilters(image, filters: ["50% Opacity"])
