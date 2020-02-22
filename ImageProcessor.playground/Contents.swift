@@ -4,7 +4,9 @@ import UIKit
 
 let image = UIImage(named: "sample")!
 
-// Base filter class
+// MARK: - Filters
+
+// Base filter class.
 public class Filter {
     public func applyToImage(_ image: inout RGBAImage) {
         for i in 0..<(image.width * image.height) {
@@ -17,7 +19,11 @@ public class Filter {
     }
 }
 
-// Brightness filter
+// Brightness filter.
+//
+// Increase or decrease the intensity of each pixel in the image by the given
+// factor. A factor less than 1 will darken the image and a factor greater
+// than 1 will make it brighter.
 public class BrightnessFilter: Filter {
     var intensity: Double  // 0 <- darker <- 1 -> brighter
 
@@ -35,7 +41,15 @@ public class BrightnessFilter: Filter {
     }
 }
 
-// Contrast filter
+// Contrast filter.
+//
+// Adjust the contrast of the image by the given factor. The intensity of each
+// pixel is adjusted by calculating the different between the pixel and the
+// average brightness, multiplying this value by the given factor, then
+// adding or subtracting this from the average brightness.
+//
+// For the sake of simplicity, the average grey scale is used as the average
+// brightness.
 public class ContrastFilter: Filter {
     private var factor: Double
     private var average: UInt8 = 0
@@ -45,7 +59,7 @@ public class ContrastFilter: Filter {
     }
 
     override public func applyToImage(_ image: inout RGBAImage) {
-        // Average brightness is calculated as the average grey scale value
+        // Calculate average grey scale
         var total = 0
         for i in 0..<(image.width * image.height) {
             let pixel = image.pixels[i]
@@ -68,12 +82,12 @@ public class ContrastFilter: Filter {
     private func calculateComponentValue(_ value: UInt8) -> UInt8 {
         // The component value is calculated as the average brightness +/-
         // the coefficient multiplied by the difference between the component
-        // value and the average brightness:
+        // value and the average brightness
         return UInt8(max(0, min(255, Double(average) + factor * (Double(value) - Double(average)))))
     }
 }
 
-// Negative filter
+// Negative filter.
 public class NegativeFilter: Filter {
     override func applyToPixel(_ pixel: inout Pixel) {
         pixel.red = 255 - pixel.red
@@ -82,7 +96,14 @@ public class NegativeFilter: Filter {
     }
 }
 
-// Grey scale filter
+// Grey scale filter.
+//
+// Convert the image to grey scale. A luminance method is used to calculate the
+// grey scale of each pixel which applies a weighting to each of the RGB
+// components of the pixel.
+//
+// See:
+// https://en.wikipedia.org/wiki/Grayscale
 public class GreyScaleFilter: Filter {
     override func applyToPixel(_ pixel: inout Pixel) {
         let grey = calculateGreyScale(pixel)
@@ -97,7 +118,12 @@ public class GreyScaleFilter: Filter {
     }
 }
 
-// Black and white filter
+// Black and white filter.
+//
+// Convert the image to black and white. Each pixel is set to black (#00) or
+// white (#FF), depending whether its grey scale value is less than or greater
+// than the mid-point. The mid-point is 127 by default and adjusted by a given
+// factor, to make the image more black or white as required.
 public class BlackAndWhiteFilter: GreyScaleFilter {
     var mid: UInt8
 
@@ -113,7 +139,10 @@ public class BlackAndWhiteFilter: GreyScaleFilter {
     }
 }
 
-// Opacity filter
+// Opacity filter.
+//
+// Set the opacity of the image. An opacity less than 1 will make the image more
+// transparent and an opacity of 1 will make the image opaque.
 public class OpacityFilter: Filter {
     var opacity: Double  // transparent < > opaque
 
@@ -126,10 +155,16 @@ public class OpacityFilter: Filter {
     }
 }
 
-// Image processor
+// MARK: - Processor
+
+// Image processor.
+//
+// Apply a list of filters to a give image. There are a number of predefined
+// filters that can be applied or new filters can be added and applied. Filters
+// are applied in the order specified when calling `applyFilters`.
 public class ImageProcessor {
     var filters: [String: Filter] = [
-        // Pre-determined filters
+        // Predefined filters
         "Grey Scale": GreyScaleFilter(),
         "50% Darker": BrightnessFilter(0.5),
         "50% Brighter": BrightnessFilter(1.5),
@@ -139,12 +174,13 @@ public class ImageProcessor {
         "100% Opactity": OpacityFilter(1.0),
         "50% Opacity": OpacityFilter(0.5)
     ]
-    
+
     public func addFilter(_ name: String, filter: Filter) {
         filters.updateValue(filter, forKey: name)
     }
 
     public func applyFilters(_ image: UIImage, filters: [String]) -> UIImage! {
+        // Apply the list of filters (by name) to the given image
         var rgbaImage = RGBAImage(image: image)!
         var count = 0
         print("Processing image (\(rgbaImage.width)x\(rgbaImage.height))")
@@ -162,7 +198,7 @@ public class ImageProcessor {
     }
 }
 
-// Process the image!
+// MARK: - Process the image!
 
 var imageProcessor = ImageProcessor()
 
