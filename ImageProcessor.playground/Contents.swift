@@ -1,4 +1,45 @@
-//: Playground - noun: a place where people can play
+// Coursera - Introduction to Swift Programming
+//
+// Image Processor
+//
+// Usage
+// =====
+//
+// 1. Create an instance of the image processor
+// ```
+// var imageProcessor = ImageProcessor()
+// ```
+//
+// 2. Process an image
+// ```
+// var newImage = imageProcessor.applyFilters(image, ["Filter 1", ...])
+// ```
+//
+// Some examples are given at the end of this file.
+//
+// Filters
+// =======
+//
+// A number of predefined filters are built-in:
+//      50% Darker
+//      50% Brighter
+//      2x Contrast
+//      Negative
+//      Grey Scale
+//      BlackAndWhite
+//      100% Opacity
+//      50% Opacity
+//
+// To add a new filter, use the `addFilter()` method and pass in a filter
+// instance and name for the new filter. This filter can then be used the
+// same as predefined filters.
+//
+// Example:
+// ```
+// var filterInstance = FilterClass()
+// imageProcessor.addFilter("New Filter", filterInstance)
+// var result = imageProcess.applyFilters(imsge, ["New Filter"])
+// ```
 
 import UIKit
 
